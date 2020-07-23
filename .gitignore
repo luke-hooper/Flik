@@ -1,0 +1,4 @@
+node_modules/
+.planning/
+config/default.json
+routes/api/.spare.js
