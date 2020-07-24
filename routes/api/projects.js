@@ -12,7 +12,54 @@ const Ticket = require("../../models/Ticket");
 // @desc    Get all projects you are attatched to
 // @access   Private
 
-router.get("/", [auth, roleAuth("readOwn", "Project")], async (req, res) => {});
+router.get("/", [auth, roleAuth("readOwn", "Project")], async (req, res) => {
+  try {
+    //Might want to populate
+    const projects = await Project.find({
+      $or: [{ "owner.user": req.user.id }, { "users.user": req.user.id }]
+    });
+
+    if (!project) {
+      return res.status(400).json({ msg: "No projects not found" });
+    }
+
+    res.json(projects);
+  } catch (err) {
+    console.error(err.msg);
+    res.status(500).send("Server Error");
+  }
+});
+
+// @route   GET api/projects/:id
+// @desc    Get all projects you are attatched to
+// @access   Private
+
+router.get("/:id", [auth, roleAuth("readOwn", "Project")], async (req, res) => {
+  try {
+    //Might want to populate
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(400).json({ msg: "Project not found" });
+    }
+
+    if (
+      project.owner.user.toString() !== req.user.id &&
+      project.users.filter(
+        searchUser => searchUser.user.toString() === req.user.id
+      ).length === 0
+    ) {
+      return res
+        .status(404)
+        .json({ msg: "You do not have access to edit this project" });
+    }
+
+    res.json(project);
+  } catch (err) {
+    console.error(err.msg);
+    res.status(500).send("Server Error");
+  }
+});
 
 // @route   POST api/projects
 // @desc    create a project
@@ -83,6 +130,115 @@ router.put(
   }
 );
 
+// @route   DELETE api/projects/:id
+// @desc    Delete a project
+// @access   Private
+router.delete(
+  "/:id",
+  [auth, roleAuth("deleteOwn", "Project")],
+  async (req, res) => {
+    try {
+      const project = await Project.findById(req.params.id);
+
+      if (!project) {
+        return res.status(404).json({ msg: "Project not found" });
+      }
+
+      // Check on if owner is deleting project
+      if (project.owner.user.toString() !== req.user.id) {
+        return res.status(404).json({ msg: "User not authorise" });
+      }
+      await Ticket.deleteMany({ project: req.params.id });
+      await Project.deleteOne({ _id: req.params.id });
+
+      res.json({ msg: "Project removed" });
+    } catch (err) {
+      console.error(err.msg);
+      if (err.kind === "ObjectId") {
+        return res.status(404).json({ msg: "Project not found" });
+      }
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+// @route   GET api/projects/:id/tickets
+// @desc    Get all tickets that are attatched to for a specific project
+// @access   Private
+
+router.get(
+  "/:id/tickets",
+  [auth, roleAuth("readOwn", "Ticket")],
+  async (req, res) => {
+    try {
+      //Check if user requesting has access to this project.
+      const project = await Project.findById(req.params.id);
+      if (
+        project.owner.user.toString() !== req.user.id &&
+        project.users.filter(
+          searchUser => searchUser.user.toString() === req.user.id
+        ).length === 0
+      ) {
+        return res
+          .status(404)
+          .json({ msg: "You do not have access to view this project" });
+      }
+      //Might want to populate
+      const tickets = await Ticket.find({
+        $and: [
+          { project: req.params.id },
+          {
+            $or: [{ "owner.user": req.user.id }, { "users.user": req.user.id }]
+          }
+        ]
+      });
+
+      if (tickets.length === 0) {
+        return res.status(400).json({ msg: "No tickets found" });
+      }
+
+      res.json(tickets);
+    } catch (err) {
+      console.error(err.msg);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+// @route   GET api/projects/:id/tickets/:id_ticket
+// @desc    Get a specific ticket on a specific project
+// @access   Private
+
+router.get(
+  "/:id/tickets/:id_ticket",
+  [auth, roleAuth("readOwn", "Ticket")],
+  async (req, res) => {
+    try {
+      const ticket = await Ticket.findById(req.params.id_ticket);
+
+      if (
+        ticket.owner.user.toString() !== req.user.id &&
+        ticket.users.filter(
+          searchUser => searchUser.user.toString() === req.user.id
+        ).length === 0
+      ) {
+        return res
+          .status(404)
+          .json({ msg: "You do not have access to view this ticket" });
+      }
+
+      if (ticket.length === 0) {
+        return res.status(400).json({ msg: "No tickets found" });
+      }
+
+      res.json(ticket);
+    } catch (err) {
+      console.error(err.msg);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
 // @route   POST api/project/:id/ticket
 // @desc    create a ticket for a project
 // @access   Private
@@ -137,7 +293,7 @@ router.post(
     if (status) ticketFields.status = status;
 
     try {
-      const owner = await User.findById(req.user.id);
+      const owner = await User.findById(req.user.id).select("-password");
 
       if (!owner) {
         return res.status(404).json({ msg: "Owner does not exist" });
@@ -149,9 +305,11 @@ router.post(
         role: owner.role,
         user: owner._id
       };
+      console.log(owner);
 
       //find user and then initialise users object in ticketfields object
       const user = await User.findOne({ email: email }).select("-password");
+      console.log(user);
 
       if (!user) {
         return res.status(404).json({ msg: "User does not exist" });
@@ -165,6 +323,7 @@ router.post(
 
       //Find project that the ticket is for
       const project = await Project.findById(req.params.id);
+      console.log(project);
 
       if (!project) {
         return res.status(404).json({ msg: "Project does not exist" });
@@ -178,11 +337,13 @@ router.post(
       );
 
       if (!projectUser) {
-        project.users.push(newUser);
+        project.users.push(ticketFields.users);
       }
-
+      console.log(">>");
+      console.log(ticketFields);
       //Create and save the new ticket and save the updated project too
       const newTicket = new Ticket(ticketFields);
+      console.log(newTicket);
 
       const ticket = await newTicket.save();
       await project.save();
@@ -226,6 +387,37 @@ router.put(
       res.json(newTicket);
     } catch (err) {
       console.error(err.msg);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+// @route   DELETE api/projects/:id/ticket/:id_ticket
+// @desc    Delete a ticket
+// @access   Private
+router.delete(
+  "/:id/ticket/:id_ticket",
+  [auth, roleAuth("deleteOwn", "Ticket")],
+  async (req, res) => {
+    try {
+      const ticket = await Ticket.findById(req.params.id_ticket);
+
+      if (!ticket) {
+        return res.status(404).json({ msg: "Ticket not found" });
+      }
+
+      // Check on if owner is deleting ticket
+      if (ticket.owner.user.toString() !== req.user.id) {
+        return res.status(404).json({ msg: "User not authorise" });
+      }
+      await Ticket.deleteOne({ _id: req.params.id_ticket });
+
+      res.json({ msg: "Ticket removed" });
+    } catch (err) {
+      console.error(err.msg);
+      if (err.kind === "ObjectId") {
+        return res.status(404).json({ msg: "Ticket not found" });
+      }
       res.status(500).send("Server Error");
     }
   }

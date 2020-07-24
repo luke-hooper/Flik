@@ -11,8 +11,10 @@ exports.roles = (function() {
     .extend("developer")
     .updateOwn("Project")
     .createOwn("Project")
+    .deleteOwn("Project")
     .updateOwn("Ticket")
-    .createOwn("Ticket");
+    .createOwn("Ticket")
+    .deleteOwn("Ticket");
 
   ac.grant("admin")
     .updateAny("Project")
