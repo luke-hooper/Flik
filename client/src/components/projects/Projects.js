@@ -4,11 +4,13 @@ import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { getMyProjects } from "../../actions/projects";
 import { getAProject } from "../../actions/projects";
+import { getProjectTickets } from "../../actions/tickets";
 
 const Projects = ({
   projects: { projects, loading },
   getMyProjects,
-  getAProject
+  getAProject,
+  getProjectTickets
 }) => {
   useEffect(() => {
     getMyProjects();
@@ -19,7 +21,8 @@ const Projects = ({
   const clickHandler = projectId => {
     console.log(projectId);
     getAProject(projectId);
-    history.push(`/project/${projectId}`);
+    getProjectTickets(projectId);
+    history.push(`/project`);
   };
 
   return (
@@ -31,7 +34,7 @@ const Projects = ({
           <h1 className='large'>My projects</h1>
           <p className='medium'>
             <i className='fas fa-clipboard text-primary'></i>
-            View projects Assigned to You
+            View Projects Assigned to You
           </p>
           <div className='wrapper'>
             <div className='projects'>
@@ -71,13 +74,16 @@ const Projects = ({
 Projects.propTypes = {
   projects: PropTypes.object.isRequired,
   getMyProjects: PropTypes.func.isRequired,
-  getAProject: PropTypes.func.isRequired
+  getAProject: PropTypes.func.isRequired,
+  getProjectTickets: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
   projects: state.projects
 });
 
-export default connect(mapStateToProps, { getMyProjects, getAProject })(
-  Projects
-);
+export default connect(mapStateToProps, {
+  getMyProjects,
+  getAProject,
+  getProjectTickets
+})(Projects);

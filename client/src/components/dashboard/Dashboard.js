@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { getMyTickets } from "../../actions/tickets";
 
-import UrgencyChart from "./UrgencyChart";
-import StatusChart from "./StatusChart";
+import UrgencyChart from "../charts/UrgencyChart";
+import StatusBar from "../charts/StatusBar";
 import TableItems from "./TableItems";
 
 const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
@@ -61,7 +61,7 @@ const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
           <p className='medium'>
             <i className='fas fa-user text-primary'></i> Welcome
           </p>
-          <div className=' table-wrapper'>
+          <div className='dashboard table-wrapper'>
             <div className='left-wrapper'>
               <h2 className='center '>Ticket Priority Overview</h2>
               <div className='wrapper'>
@@ -91,7 +91,7 @@ const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
             <div className='right-wrapper'>
               <h2 className='center '>Ticket Status Overview</h2>
               <div className='wrapper'>
-                <StatusChart />
+                <StatusBar />
               </div>
               <h2 className='center '>Open Tickets Overview</h2>
               <div className='wrapper'>

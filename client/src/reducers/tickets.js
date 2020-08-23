@@ -3,7 +3,8 @@ import {
   TICKET_ERROR,
   CLEAR_TICKETS,
   CLEAR_TICKET,
-  GET_TICKET
+  GET_TICKET,
+  GET_PROJECT_TICKETS
 } from "../actions/types";
 
 const initialState = {
@@ -17,6 +18,7 @@ export default function(state = initialState, action) {
   const { type, payload } = action;
   switch (type) {
     case GET_TICKETS:
+    case GET_PROJECT_TICKETS:
       return {
         ...state,
         tickets: payload,
@@ -36,7 +38,7 @@ export default function(state = initialState, action) {
         ticket: null
       };
     case CLEAR_TICKETS:
-      return { ...state, tickets: null, loading: true };
+      return { ...state, tickets: [], loading: true };
     case CLEAR_TICKET:
       return { ...state, ticket: null, loading: true };
 

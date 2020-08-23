@@ -115,25 +115,30 @@ router.post(
   "/project/:id_project",
   [
     auth,
-    roleAuth("createOwn", "Ticket"),
-    check("title", "Ticket title is required")
-      .not()
-      .isEmpty(),
-    check("description", "Ticket description is required")
-      .not()
-      .isEmpty(),
-    check("priority", "Please provide a piority for this ticket")
-      .not()
-      .isEmpty(),
-    check("status", "Please provide a piority for this ticket")
-      .not()
-      .isEmpty(),
-    check(
-      "email",
-      "Please provide an email for whom you wish to give this ticket to."
-    )
-      .not()
-      .isEmpty()
+    [
+      roleAuth("createOwn", "Ticket"),
+      check("title", "Ticket title is required")
+        .not()
+        .isEmpty(),
+      check("description", "Ticket description is required")
+        .not()
+        .isEmpty(),
+      check("priority", "Please provide a piority for this ticket")
+        .not()
+        .isEmpty(),
+      check("status", "Please provide a piority for this ticket")
+        .not()
+        .isEmpty(),
+      check(
+        "email",
+        "Please provide an email for whom you wish to give this ticket to."
+      )
+        .not()
+        .isEmpty(),
+      check("completionDate", "Please select a completion date")
+        .not()
+        .isEmpty()
+    ]
   ],
   async (req, res) => {
     //Check if there are any errors from new project form
@@ -151,7 +156,8 @@ router.post(
       priority,
       type,
       comments,
-      status
+      status,
+      completionDate
     } = req.body;
 
     //Initialise the ticket field object
@@ -162,6 +168,7 @@ router.post(
     if (type) ticketFields.type = type;
     if (comments) ticketFields.comments = comments;
     if (status) ticketFields.status = status;
+    if (completionDate) ticketFields.completionDate = completionDate;
 
     try {
       const owner = await User.findById(req.user.id).select("-password");
@@ -176,11 +183,9 @@ router.post(
         role: owner.role,
         user: owner._id
       };
-      console.log(owner);
 
       //find user and then initialise users object in ticketfields object
       const user = await User.findOne({ email: email }).select("-password");
-      console.log(user);
 
       if (!user) {
         return res.status(404).json({ msg: "User does not exist" });
@@ -192,9 +197,15 @@ router.post(
         role: user.role
       };
 
+      ticketFields.comments = {
+        user: user.id,
+        name: user.name,
+        role: user.role,
+        text: "Ticket created"
+      };
+
       //Find project that the ticket is for
       const project = await Project.findById(req.params.id_project);
-      console.log(project);
 
       if (!project) {
         return res.status(404).json({ msg: "Project does not exist" });
@@ -210,17 +221,15 @@ router.post(
       if (!projectUser) {
         project.users.push(ticketFields.users);
       }
-      console.log(">>");
-      console.log(ticketFields);
+
       //Create and save the new ticket and save the updated project too
       const newTicket = new Ticket(ticketFields);
-      console.log(newTicket);
 
       const ticket = await newTicket.save();
       await project.save();
       res.json(ticket);
     } catch (err) {
-      console.error(err.msg);
+      console.error(err.message);
       res.status(500).send("Server Error");
     }
   }
@@ -252,6 +261,23 @@ router.put(
           .status(404)
           .json({ msg: "You do not have access to edit this ticket" });
       }
+      let commentUpdates = [];
+      for (const [key, value] of Object.entries(update)) {
+        let commentLine = `${key} was updated to '${value}'.`;
+        commentUpdates.unshift(commentLine);
+      }
+      const user = await User.findById(req.user.id).select("-password");
+      commentUpdates.map(comment => {
+        const commentUpdate = {
+          text: comment,
+          name: user.name,
+          user: req.user.id,
+          role: user.role
+        };
+        ticket.comments.unshift(commentUpdate);
+      });
+
+      console.log(ticket.comments);
 
       await Ticket.findByIdAndUpdate(ticketId, update);
       const newTicket = await Ticket.findById(ticketId);
@@ -289,6 +315,59 @@ router.delete(
       if (err.kind === "ObjectId") {
         return res.status(404).json({ msg: "Ticket not found" });
       }
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+// @route   POST api/tickets/comment/:id_ticket
+// @desc    Add a comment to a ticket
+// @access   Private
+
+router.put(
+  "/comment/:id_ticket",
+  [
+    auth,
+    roleAuth("updateOwn", "Ticket"),
+    [
+      check("text", "Text is required")
+        .not()
+        .isEmpty()
+    ]
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const ticket = await Ticket.findById(req.params.id_ticket);
+      console.log("ticket" + ticket);
+      if (!ticket) {
+        return res.status(404).json({ msg: "Ticket not found" });
+      }
+      console.log(req.user.id);
+      // Check on if owner is deleting ticket
+      if (ticket.owner.user.toString() !== req.user.id) {
+        return res.status(404).json({ msg: "User not authorise" });
+      }
+
+      const user = await User.findById(req.user.id).select("-password");
+      console.log("user1" + user);
+
+      const newComment = {
+        text: req.body.text,
+        name: user.name,
+        user: req.user.id,
+        role: user.role
+      };
+      console.log(newComment);
+
+      ticket.comments.unshift(newComment);
+      res.json(ticket);
+      await ticket.save();
+    } catch (err) {
+      console.error(err.message);
       res.status(500).send("Server Error");
     }
   }

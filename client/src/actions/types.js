@@ -17,6 +17,7 @@ export const GET_TICKET = "GET_TICKET";
 export const CLEAR_TICKETS = "CLEAR_TICKETS";
 export const CLEAR_TICKET = "CLEAR_TICKET";
 export const TICKET_ERROR = "TICKET_ERROR";
+export const GET_PROJECT_TICKETS = "GET_PROJECT_TICKETS";
 
 //PROJECTS
 export const GET_PROJECTS = "GET_PROJECTS";

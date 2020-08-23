@@ -58,12 +58,35 @@ const TicketSchema = new mongoose.Schema({
     type: String,
     enum: ["waiting", "inProgress", "completed", "abadonned"]
   },
-  comments: {
-    type: String
-  },
+  comments: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users"
+      },
+      text: {
+        type: String,
+        required: true
+      },
+      name: {
+        type: String
+      },
+      role: {
+        type: String
+      },
+      date: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
   date: {
     type: Date,
     default: Date.now
+  },
+  completionDate: {
+    type: Date,
+    required: true
   }
 });
 
