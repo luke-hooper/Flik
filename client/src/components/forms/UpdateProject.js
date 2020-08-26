@@ -1,13 +1,25 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { createProject } from "../../actions/projects";
 
-const CreateProject = ({ createProject, history }) => {
+import { updateProject } from "../../actions/projects";
+
+const UpdateProject = ({
+  projects: { project, loading },
+  history,
+  updateProject
+}) => {
   const [formData, setFormData] = useState({
     title: "",
     description: ""
   });
+
+  useEffect(() => {
+    setFormData({
+      title: loading || !project.title ? "" : project.title,
+      description: loading || !project.description ? "" : project.description
+    });
+  }, [loading]);
 
   const { title, description } = formData;
 
@@ -16,11 +28,11 @@ const CreateProject = ({ createProject, history }) => {
 
   const onSubmit = e => {
     e.preventDefault();
-    createProject(formData, history);
+    updateProject(project._id, formData, history);
   };
   return (
     <Fragment>
-      <h1 className='large'>Create A Project</h1>
+      <h1 className='large'>Update A Project</h1>
 
       <form className='form' onSubmit={onSubmit}>
         <div className='form-group'>
@@ -38,7 +50,7 @@ const CreateProject = ({ createProject, history }) => {
           <label for='description'>
             Please write an overview of the new project:{" "}
           </label>
-          <textarea
+          <input
             type='textarea'
             placeholder='Description'
             name='description'
@@ -48,12 +60,23 @@ const CreateProject = ({ createProject, history }) => {
           />
         </div>
 
-        <input type='submit' className='btn btn-primary' value='Register' />
+        <input
+          type='submit'
+          className='btn btn-primary'
+          value='Update Project'
+        />
       </form>
     </Fragment>
   );
 };
 
-CreateProject.propTypes = {};
+UpdateProject.propTypes = {
+  projects: PropTypes.object.isRequired,
+  updateProject: PropTypes.func.isRequired
+};
 
-export default connect(null, { createProject })(CreateProject);
+const mapStateToProps = state => ({
+  projects: state.projects
+});
+
+export default connect(mapStateToProps, { updateProject })(UpdateProject);

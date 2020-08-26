@@ -1,19 +1,25 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment } from "react";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
+import { deleteProject } from "../../actions/projects";
 import LogItem from "./LogItem";
-import StatusBar from "../charts/StatusBar";
 import UrgencyChart from "../charts/UrgencyChart";
 
-const Project = ({ projects: { project, loading }, tickets: { tickets } }) => {
+const Project = ({
+  projects: { project, loading },
+  tickets: { tickets },
+  deleteProject,
+  history
+}) => {
+  const deleteHandler = () => {
+    deleteProject(project._id);
+    history.push("/projects");
+  };
   return (
     <Fragment>
-      {loading && project === null ? (
-        <Fragment>
-          <h1>project Loading ...</h1>
-        </Fragment>
-      ) : (
+      {!loading && project !== null ? (
         <Fragment className='project'>
           <div className='header'>
             <h1 className='large'>Project</h1>
@@ -21,6 +27,17 @@ const Project = ({ projects: { project, loading }, tickets: { tickets } }) => {
               <i className='fas fa-project-alt text-primary'></i>
               Indepth View of Project: {project.title}
             </p>
+          </div>
+          <div className='dash-buttons'>
+            <Link to='/update-project' className='btn btn-light'>
+              <i className='fas fa-clipboard text-primary'></i> Update Project
+            </Link>
+            <Link to='/create-ticket' className='btn btn-light'>
+              <i className='fas fa-ticket-alt text-primary'></i> Add A Ticket
+            </Link>
+            <div onClick={deleteHandler} className='btn btn-light'>
+              <i className='fas fa-clipboard text-primary'></i> Delete Project
+            </div>
           </div>
           <div className='project-table-wrapper'>
             <div className='wrapper project-top-left'>
@@ -74,17 +91,20 @@ const Project = ({ projects: { project, loading }, tickets: { tickets } }) => {
             </div>
           </div>
         </Fragment>
+      ) : (
+        <h1>project Loading ...</h1>
       )}
     </Fragment>
   );
 };
 
 Project.propTypes = {
-  project: PropTypes.object.isRequired
+  project: PropTypes.object.isRequired,
+  deleteProject: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
   projects: state.projects,
   tickets: state.tickets
 });
-export default connect(mapStateToProps)(Project);
+export default connect(mapStateToProps, { deleteProject })(Project);

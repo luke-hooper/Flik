@@ -123,12 +123,10 @@ router.post(
       check("description", "Ticket description is required")
         .not()
         .isEmpty(),
-      check("priority", "Please provide a piority for this ticket")
+      check("priority", "Please provide a priority for this ticket")
         .not()
         .isEmpty(),
-      check("status", "Please provide a piority for this ticket")
-        .not()
-        .isEmpty(),
+
       check(
         "email",
         "Please provide an email for whom you wish to give this ticket to."

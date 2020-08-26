@@ -18,6 +18,10 @@ import Tickets from "./components/tickets/Tickets";
 import Ticket from "./components/tickets/Ticket";
 import Projects from "./components/projects/Projects";
 import Project from "./components/projects/Project";
+import CreateTicket from "./components/forms/CreateTicket";
+import UpdateTicket from "./components/forms/UpdateTicket";
+import CreateProject from "./components/forms/CreateProject";
+import UpdateProject from "./components/forms/UpdateProject";
 
 import setAuthToken from "./util/setAuthToken";
 import { loadUser } from "./actions/auth";
@@ -46,6 +50,26 @@ function App() {
               <PrivateRoute exact path='/projects' component={Projects} />
               <PrivateRoute exact path='/ticket' component={Ticket} />
               <PrivateRoute exact path='/project' component={Project} />
+              <PrivateRoute
+                exact
+                path='/create-ticket'
+                component={CreateTicket}
+              />
+              <PrivateRoute
+                exact
+                path='/update-ticket'
+                component={UpdateTicket}
+              />
+              <PrivateRoute
+                exact
+                path='/create-project'
+                component={CreateProject}
+              />
+              <PrivateRoute
+                exact
+                path='/update-project'
+                component={UpdateProject}
+              />
             </Switch>
           </section>
         </Fragment>

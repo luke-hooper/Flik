@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 
 import PropTypes from "prop-types";
@@ -61,6 +62,11 @@ const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
           <p className='medium'>
             <i className='fas fa-user text-primary'></i> Welcome
           </p>
+          <div className='dash-buttons'>
+            <Link to='/create-project' className='btn btn-light'>
+              <i className='fas fa-clipboard text-primary'></i> Create A Project
+            </Link>
+          </div>
           <div className='dashboard table-wrapper'>
             <div className='left-wrapper'>
               <h2 className='center '>Ticket Priority Overview</h2>
@@ -122,7 +128,8 @@ const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
 };
 
 Dashboard.propTypes = {
-  getMyTickets: PropTypes.func.isRequired
+  getMyTickets: PropTypes.func.isRequired,
+  tickets: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({

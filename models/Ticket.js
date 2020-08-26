@@ -52,7 +52,8 @@ const TicketSchema = new mongoose.Schema({
     enum: ["low", "medium", "high"]
   },
   type: {
-    type: String
+    type: String,
+    enum: ["bug", "featureReq", "review", "other"]
   },
   status: {
     type: String,

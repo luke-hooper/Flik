@@ -27,9 +27,7 @@ const Projects = ({
 
   return (
     <Fragment>
-      {loading && projects === null ? (
-        <h1>Content Loading ...</h1>
-      ) : (
+      {!loading && projects !== null ? (
         <Fragment>
           <h1 className='large'>My projects</h1>
           <p className='medium'>
@@ -66,6 +64,8 @@ const Projects = ({
             </div>
           </div>
         </Fragment>
+      ) : (
+        <h1>Content Loading ...</h1>
       )}
     </Fragment>
   );

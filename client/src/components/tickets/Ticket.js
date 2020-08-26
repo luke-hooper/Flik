@@ -1,10 +1,16 @@
 import React, { Fragment } from "react";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
 import LogItem from "./LogItem";
+import { deleteTicket } from "../../actions/tickets";
 
-const Ticket = ({ tickets: { ticket, loading } }) => {
+const Ticket = ({ tickets: { ticket, loading }, deleteTicket, history }) => {
+  const deleteHandler = () => {
+    deleteTicket(ticket._id);
+    history.goBack();
+  };
   return (
     <Fragment>
       {loading && ticket === null ? (
@@ -20,6 +26,15 @@ const Ticket = ({ tickets: { ticket, loading } }) => {
               Indepth View of Ticket: {ticket.title}
             </p>
           </div>
+          <div className='dash-buttons'>
+            <Link to='/update-ticket' className='btn btn-light'>
+              <i className='fas fa-ticket-alt text-primary'></i> Update Ticket
+            </Link>
+            <div onClick={deleteHandler} className='btn btn-light'>
+              <i className='fas fa-ticket-alt text-primary'></i> Delete Ticket
+            </div>
+          </div>
+
           <div className='ticket-table-wrapper'>
             <div className='wrapper ticket-top-left'>
               <div className='heading'>Overview</div>
@@ -55,10 +70,11 @@ const Ticket = ({ tickets: { ticket, loading } }) => {
 };
 
 Ticket.propTypes = {
-  ticket: PropTypes.object.isRequired
+  ticket: PropTypes.object.isRequired,
+  deleteTicket: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
   tickets: state.tickets
 });
-export default connect(mapStateToProps)(Ticket);
+export default connect(mapStateToProps, { deleteTicket })(Ticket);

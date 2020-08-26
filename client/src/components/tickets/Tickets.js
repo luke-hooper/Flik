@@ -23,6 +23,7 @@ const Tickets = ({
     getATicket(ticketId);
     history.push(`/ticket`);
   };
+
   return (
     <Fragment>
       {loading && tickets === null ? (
