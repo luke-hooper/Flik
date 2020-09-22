@@ -50,7 +50,7 @@ const UpdateProject = ({
           <label for='description'>
             Please write an overview of the new project:{" "}
           </label>
-          <input
+          <textarea
             type='textarea'
             placeholder='Description'
             name='description'
