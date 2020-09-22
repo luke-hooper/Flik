@@ -8,9 +8,9 @@ const CreateTicket = ({ project: { _id }, createTicket, history }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    priority: "",
-
-    type: "",
+    priority: "medium",
+    status: "waiting",
+    type: "bug",
     completionDate: "",
     email: ""
   });
@@ -19,7 +19,6 @@ const CreateTicket = ({ project: { _id }, createTicket, history }) => {
     title,
     description,
     priority,
-
     type,
     completionDate,
     email
@@ -38,7 +37,7 @@ const CreateTicket = ({ project: { _id }, createTicket, history }) => {
 
       <form className='form' onSubmit={onSubmit}>
         <div className='form-group'>
-          <label>Name of the Ticket: </label>
+          <label for='text'>Name of the Ticket: </label>
           <input
             type='text'
             placeholder='Title'
@@ -49,7 +48,7 @@ const CreateTicket = ({ project: { _id }, createTicket, history }) => {
           />
         </div>
         <div className='form-group'>
-          <label>
+          <label for='description'>
             Please write a short description of what is to be done:{" "}
           </label>
           <textarea
@@ -62,7 +61,7 @@ const CreateTicket = ({ project: { _id }, createTicket, history }) => {
           />
         </div>
         <div className='form form-group'>
-          <label>Please select the type of the ticket: </label>
+          <label for='type'>Please select the type of the ticket: </label>
           <select
             id='type'
             name='type'
@@ -70,31 +69,30 @@ const CreateTicket = ({ project: { _id }, createTicket, history }) => {
             onChange={onChange}
             required
           >
-            <option value='bug' defaultValue>
-              Bug{" "}
-            </option>
+            <option value='bug'>Bug </option>
             <option value='featureReq'>Feature Request</option>
             <option value='review'>Code Review</option>
             <option value='other'>Other</option>
           </select>
         </div>
         <div className='form form-group'>
-          <label>Please select the priority of the ticket: </label>
+          <label for='priority'>
+            Please select the priority of the ticket:{" "}
+          </label>
           <select
             id='priority'
             name='priority'
             value={priority}
             onChange={onChange}
           >
-            <option value='low' defaultValue>
-              Low{" "}
-            </option>
+            <option value='low'>Low </option>
             <option value='medium'>Medium</option>
             <option value='high'>High</option>
           </select>
         </div>
+
         <div className='form-group'>
-          <label>
+          <label for='date'>
             Please select the date the ticket needs to be completed by:{" "}
           </label>
           <input
@@ -106,7 +104,7 @@ const CreateTicket = ({ project: { _id }, createTicket, history }) => {
           />
         </div>
         <div className='form-group'>
-          <label>
+          <label for='email'>
             Please provide a valid email for the developer you with to asign the
             ticket to:{" "}
           </label>

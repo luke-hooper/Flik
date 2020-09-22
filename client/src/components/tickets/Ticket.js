@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
@@ -6,33 +6,47 @@ import PropTypes from "prop-types";
 import LogItem from "./LogItem";
 import { deleteTicket } from "../../actions/tickets";
 
-const Ticket = ({ tickets: { ticket, loading }, deleteTicket, history }) => {
+const Ticket = ({
+  tickets: { ticket, loading },
+  user: { role },
+  deleteTicket,
+  history
+}) => {
   const deleteHandler = () => {
     deleteTicket(ticket._id);
     history.goBack();
   };
   return (
     <Fragment>
-      {loading && ticket === null ? (
-        <Fragment>
-          <h1>Ticket Loading ...</h1>
-        </Fragment>
-      ) : (
+      {!loading && ticket !== null ? (
         <Fragment className='ticket'>
-          <div className='header'>
-            <h1 className='large'>Ticket</h1>
-            <p className='medium'>
-              <i className='fas fa-ticket-alt text-primary'></i>
-              Indepth View of Ticket: {ticket.title}
-            </p>
-          </div>
-          <div className='dash-buttons'>
-            <Link to='/update-ticket' className='btn btn-light'>
-              <i className='fas fa-ticket-alt text-primary'></i> Update Ticket
-            </Link>
-            <div onClick={deleteHandler} className='btn btn-light'>
-              <i className='fas fa-ticket-alt text-primary'></i> Delete Ticket
+          <div className='head'>
+            <div className='header'>
+              <h1 className='large'>Ticket</h1>
+              <p className='medium'>
+                <i className='fas fa-ticket-alt text-primary'></i>
+                Indepth View of Ticket: {ticket.title}
+              </p>
             </div>
+            {role === "projectLead" ? (
+              <div className='dash-buttons'>
+                <Link to='/update-ticket' className='btn btn-light'>
+                  <i className='fas fa-ticket-alt text-primary'></i> Update
+                  Ticket
+                </Link>
+                <div onClick={deleteHandler} className='btn btn-light'>
+                  <i className='fas fa-ticket-alt text-primary'></i> Delete
+                  Ticket
+                </div>
+              </div>
+            ) : (
+              <div className='dash-buttons'>
+                <Link to='/update-ticket' className='btn btn-light'>
+                  <i className='fas fa-ticket-alt text-primary'></i> Update
+                  Ticket
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className='ticket-table-wrapper'>
@@ -64,6 +78,10 @@ const Ticket = ({ tickets: { ticket, loading }, deleteTicket, history }) => {
             </div>
           </div>
         </Fragment>
+      ) : (
+        <Fragment>
+          <h1>Ticket Loading ...</h1>
+        </Fragment>
       )}
     </Fragment>
   );
@@ -71,10 +89,12 @@ const Ticket = ({ tickets: { ticket, loading }, deleteTicket, history }) => {
 
 Ticket.propTypes = {
   ticket: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   deleteTicket: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
-  tickets: state.tickets
+  tickets: state.tickets,
+  user: state.auth.user
 });
 export default connect(mapStateToProps, { deleteTicket })(Ticket);

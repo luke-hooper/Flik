@@ -9,7 +9,11 @@ import UrgencyChart from "../charts/UrgencyChart";
 import StatusBar from "../charts/StatusBar";
 import TableItems from "./TableItems";
 
-const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
+const Dashboard = ({
+  getMyTickets,
+  tickets: { tickets, loading },
+  user: { name, role }
+}) => {
   useEffect(() => {
     getMyTickets();
   }, [getMyTickets]);
@@ -54,19 +58,23 @@ const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
 
   return (
     <Fragment>
-      {loading && tickets === null ? (
-        <h1>Content Loading ...</h1>
-      ) : (
+      {!loading && tickets !== null ? (
         <Fragment>
-          <h1 className='large'>Dashboard</h1>
-          <p className='medium'>
-            <i className='fas fa-user text-primary'></i> Welcome
-          </p>
-          <div className='dash-buttons'>
-            <Link to='/create-project' className='btn btn-light'>
-              <i className='fas fa-clipboard text-primary'></i> Create A Project
-            </Link>
+          <div className='head'>
+            <h1 className='large'>Dashboard</h1>
+            <p className='medium'>
+              <i className='fas fa-user text-primary'></i> Welcome {name}
+            </p>
+            {role === "projectLead" && (
+              <div className='dash-buttons'>
+                <Link to='/create-project' className='btn btn-light'>
+                  <i className='fas fa-clipboard text-primary'></i> Create A
+                  Project
+                </Link>
+              </div>
+            )}
           </div>
+
           <div className='dashboard table-wrapper'>
             <div className='left-wrapper'>
               <h2 className='center '>Ticket Priority Overview</h2>
@@ -122,6 +130,8 @@ const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
             </div>
           </div>
         </Fragment>
+      ) : (
+        <h1>Content Loading ...</h1>
       )}
     </Fragment>
   );
@@ -129,11 +139,13 @@ const Dashboard = ({ getMyTickets, tickets: { tickets, loading } }) => {
 
 Dashboard.propTypes = {
   getMyTickets: PropTypes.func.isRequired,
-  tickets: PropTypes.func.isRequired
+  tickets: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({
-  tickets: state.tickets
+  tickets: state.tickets,
+  user: state.auth.user
 });
 
 export default connect(mapStateToProps, { getMyTickets })(Dashboard);

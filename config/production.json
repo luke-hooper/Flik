@@ -1,0 +1,4 @@
+{
+  "mongoURI": "mongodb+srv://Hoops_Admin:WashBinApple01@bugslife1.ee5un.mongodb.net/<dbname>?retryWrites=true&w=majority",
+  "jwtSecret": "secrethamjammysecrettoken"
+}

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
+const moment = require("moment");
 const auth = require("../../middleware/auth");
 const roleAuth = require("../../middleware/roleAuth");
 
@@ -260,10 +261,32 @@ router.put(
           .json({ msg: "You do not have access to edit this ticket" });
       }
       let commentUpdates = [];
+
       for (const [key, value] of Object.entries(update)) {
-        let commentLine = `${key} was updated to '${value}'.`;
-        commentUpdates.unshift(commentLine);
+        if (key === "email") {
+          if (value !== ticket.users[0].email) {
+            console.log(key);
+            let commentLine = `${key} was updated to '${value}'.`;
+            console.log(commentLine);
+            commentUpdates.unshift(commentLine);
+          }
+        } else if (key === "completionDate") {
+          console.log("hello1");
+          if (moment(ticket.completionDate).format("YYYY-MM-DD") !== value) {
+            console.log(key);
+            console.log("hello");
+            let commentLine = `${key} was updated to '${value}'.`;
+            console.log(commentLine);
+            commentUpdates.unshift(commentLine);
+          }
+        } else if (ticket[key] !== value) {
+          console.log(key);
+          let commentLine = `${key} was updated from '${ticket[key]}' to '${value}'.`;
+          console.log(commentLine);
+          commentUpdates.unshift(commentLine);
+        }
       }
+
       const user = await User.findById(req.user.id).select("-password");
       commentUpdates.map(comment => {
         const commentUpdate = {
@@ -275,10 +298,11 @@ router.put(
         ticket.comments.unshift(commentUpdate);
       });
 
-      console.log(ticket.comments);
+      await ticket.save();
 
       await Ticket.findByIdAndUpdate(ticketId, update);
       const newTicket = await Ticket.findById(ticketId);
+      console.log(newTicket);
       res.json(newTicket);
     } catch (err) {
       console.error(err.msg);

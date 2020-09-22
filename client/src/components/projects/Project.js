@@ -10,6 +10,7 @@ import UrgencyChart from "../charts/UrgencyChart";
 const Project = ({
   projects: { project, loading },
   tickets: { tickets },
+  user: { role },
   deleteProject,
   history
 }) => {
@@ -21,24 +22,36 @@ const Project = ({
     <Fragment>
       {!loading && project !== null ? (
         <Fragment className='project'>
-          <div className='header'>
-            <h1 className='large'>Project</h1>
-            <p className='medium'>
-              <i className='fas fa-project-alt text-primary'></i>
-              Indepth View of Project: {project.title}
-            </p>
-          </div>
-          <div className='dash-buttons'>
-            <Link to='/update-project' className='btn btn-light'>
-              <i className='fas fa-clipboard text-primary'></i> Update Project
-            </Link>
-            <Link to='/create-ticket' className='btn btn-light'>
-              <i className='fas fa-ticket-alt text-primary'></i> Add A Ticket
-            </Link>
-            <div onClick={deleteHandler} className='btn btn-light'>
-              <i className='fas fa-clipboard text-primary'></i> Delete Project
+          <div className='head'>
+            <div className='header'>
+              <h1 className='large'>Project</h1>
+              <p className='medium'>
+                <i className='fas fa-project-alt text-primary'></i>
+                Indepth View of Project: {project.title}
+              </p>
             </div>
+            {role === "projectLead" ? (
+              <div className='dash-buttons'>
+                <Link to='/update-project' className='btn btn-light'>
+                  <i className='fas fa-clipboard text-primary'></i> Update
+                  Project
+                </Link>
+                <Link to='/create-ticket' className='btn btn-light'>
+                  <i className='fas fa-ticket-alt text-primary'></i> Add A
+                  Ticket
+                </Link>
+                <div onClick={deleteHandler} className='btn btn-light'>
+                  <i className='fas fa-clipboard text-primary'></i> Delete
+                  Project
+                </div>
+              </div>
+            ) : (
+              <Link to='/create-ticket' className='btn btn-light'>
+                <i className='fas fa-ticket-alt text-primary'></i> Add A Ticket
+              </Link>
+            )}
           </div>
+
           <div className='project-table-wrapper'>
             <div className='wrapper project-top-left'>
               <UrgencyChart className='project-chart' />
@@ -100,11 +113,13 @@ const Project = ({
 
 Project.propTypes = {
   project: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   deleteProject: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
   projects: state.projects,
-  tickets: state.tickets
+  tickets: state.tickets,
+  user: state.auth.user
 });
 export default connect(mapStateToProps, { deleteProject })(Project);

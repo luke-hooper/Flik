@@ -91,9 +91,7 @@ const UpdateTicket = ({
             onChange={onChange}
             required
           >
-            <option value='bug' defaultValue>
-              Bug{" "}
-            </option>
+            <option value='bug'>Bug </option>
             <option value='featureReq'>Feature Request</option>
             <option value='review'>Code Review</option>
             <option value='other'>Other</option>
@@ -108,20 +106,23 @@ const UpdateTicket = ({
             name='priority'
             value={priority}
             onChange={onChange}
+            required
           >
-            <option value='low' defaultValue>
-              Low{" "}
-            </option>
+            <option value='low'>Low </option>
             <option value='medium'>Medium</option>
             <option value='high'>High</option>
           </select>
         </div>
         <div className='form form-group'>
-          <label for='priority'>Please select the status of the ticket: </label>
-          <select id='status' name='status' value={status} onChange={onChange}>
-            <option value='waiting' defaultValue>
-              Waiting{" "}
-            </option>
+          <label for='status'>Please select the status of the ticket: </label>
+          <select
+            id='status'
+            name='status'
+            value={status}
+            onChange={onChange}
+            required
+          >
+            <option value='waiting'>Waiting </option>
             <option value='inProgress'>In Progress</option>
             <option value='completed'>Completed</option>
             <option value='abadonned'>Abadonned</option>

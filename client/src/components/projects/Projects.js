@@ -29,11 +29,13 @@ const Projects = ({
     <Fragment>
       {!loading && projects !== null ? (
         <Fragment>
-          <h1 className='large'>My projects</h1>
-          <p className='medium'>
-            <i className='fas fa-clipboard text-primary'></i>
-            View Projects Assigned to You
-          </p>
+          <div className='head'>
+            <h1 className='large'>My projects</h1>
+            <p className='medium'>
+              <i className='fas fa-clipboard text-primary'></i>
+              View Projects Assigned to You
+            </p>
+          </div>
           <div className='wrapper'>
             <div className='projects'>
               <table className='table'>
